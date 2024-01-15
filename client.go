@@ -1,6 +1,10 @@
 package bingx
 
 import (
+	"context"
+	"encoding/json"
+	"go-bingx/common"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -41,4 +45,39 @@ func NewClient(apiKey, secretKey string) *Client {
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "bingx-golang", log.LstdFlags),
 	}
+}
+
+func (c *Client) callAPI(ctx context.Context, r *request) (data []byte, err error) {
+	req, err := http.NewRequest(r.method, r.fullUrl, r.body)
+	if err != nil {
+		return []byte{}, err
+	}
+	req = req.WithContext(ctx)
+	req.Header = r.header
+
+	f := c.do
+	if f == nil {
+		f = c.HTTPClient.Do
+	}
+	res, err := f(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	data, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer func() {
+		cerr := res.Body.Close()
+		if err == nil && cerr != nil {
+			err = cerr
+		}
+	}()
+
+	if res.StatusCode >= http.StatusBadRequest {
+		apiErr := new(common.APIError)
+		json.Unmarshal(data, apiErr)
+		return nil, apiErr
+	}
+	return data, nil
 }

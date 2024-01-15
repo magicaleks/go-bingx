@@ -1,19 +1,31 @@
 package bingx
 
 import (
+	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"go-bingx/common"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 // API Endpoints
 const (
 	baseApiUrl = "https://open-api.bingx.com"
 	// baseTestApiUrl = "" Unactual
+)
+
+const (
+	timestampKey  = "timestamp"
+	signatureKey  = "signature"
+	recvWindowKey = "recvWindow"
 )
 
 func getApiEndpoint() string {
@@ -53,14 +65,74 @@ func (c *Client) debug(message string, args ...interface{}) {
 	}
 }
 
-func (c *Client) callAPI(ctx context.Context, r *request) (data []byte, err error) {
+func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
+	for _, opt := range opts {
+		opt(r)
+	}
+
+	err = r.validate()
+	if err != nil {
+		return err
+	}
+
+	r.setParam(recvWindowKey, r.recvWindow)
+
+	timestamp := time.Now().UnixNano() / 1e6
+	if r.query != nil {
+		sign := computeHmac256(r.query.Encode(), c.SecretKey)
+		r.setParam(signatureKey, sign)
+		r.setParam(timestampKey, timestamp)
+	} else {
+		sign := computeHmac256(r.form.Encode(), c.SecretKey)
+		r.setFormParam(signatureKey, sign)
+		r.setFormParam(timestampKey, timestamp)
+	}
+
+	queryString := r.query.Encode()
+	body := &bytes.Buffer{}
+	bodyString := r.form.Encode()
+	header := http.Header{}
+	if r.header != nil {
+		header = r.header.Clone()
+	}
+	if bodyString != "" {
+		header.Set("Content-Type", "application/x-www-form-urlencoded")
+		body = bytes.NewBufferString(bodyString)
+	}
+
+	fullUrl := fmt.Sprintf("%s%s", c.BaseURL, r.endpoint)
+
+	if queryString != "" {
+		fullUrl = fmt.Sprintf("%s?%s", fullUrl, queryString)
+	}
+
+	header.Add("X-BX-APIKEY", c.APIKey)
+
+	r.fullUrl = fullUrl
+	r.header = header
+	r.body = body
+	return nil
+}
+
+func computeHmac256(strMessage string, strSecret string) string {
+	key := []byte(strSecret)
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(strMessage))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption) (data []byte, err error) {
+	err = c.parseRequest(r, opts...)
+	if err != nil {
+		return []byte{}, err
+	}
 	req, err := http.NewRequest(r.method, r.fullUrl, r.body)
 	if err != nil {
 		return []byte{}, err
 	}
 	req = req.WithContext(ctx)
 	req.Header = r.header
-
+	c.debug("request: %#v", req)
 	f := c.do
 	if f == nil {
 		f = c.HTTPClient.Do
@@ -79,6 +151,9 @@ func (c *Client) callAPI(ctx context.Context, r *request) (data []byte, err erro
 			err = cerr
 		}
 	}()
+	c.debug("response: %#v", res)
+	c.debug("response body: %s", string(data))
+	c.debug("response status code: %d", res.StatusCode)
 
 	if res.StatusCode >= http.StatusBadRequest {
 		apiErr := new(common.APIError)
@@ -89,4 +164,8 @@ func (c *Client) callAPI(ctx context.Context, r *request) (data []byte, err erro
 		return nil, apiErr
 	}
 	return data, nil
+}
+
+func (c *Client) NewGetBalanceService() *GetBalanceService {
+	return &GetBalanceService{c}
 }

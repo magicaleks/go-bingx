@@ -47,6 +47,12 @@ func NewClient(apiKey, secretKey string) *Client {
 	}
 }
 
+func (c *Client) debug(message string, args ...interface{}) {
+	if c.Debug {
+		c.Logger.Printf(message, args...)
+	}
+}
+
 func (c *Client) callAPI(ctx context.Context, r *request) (data []byte, err error) {
 	req, err := http.NewRequest(r.method, r.fullUrl, r.body)
 	if err != nil {
@@ -76,7 +82,10 @@ func (c *Client) callAPI(ctx context.Context, r *request) (data []byte, err erro
 
 	if res.StatusCode >= http.StatusBadRequest {
 		apiErr := new(common.APIError)
-		json.Unmarshal(data, apiErr)
+		e := json.Unmarshal(data, apiErr)
+		if e != nil {
+			c.debug("failed to unmarshal json: %s", e)
+		}
 		return nil, apiErr
 	}
 	return data, nil

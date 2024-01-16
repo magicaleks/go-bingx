@@ -8,12 +8,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"go-bingx/common"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/magicaleks/go-bingx/common"
 )
 
 // API Endpoints

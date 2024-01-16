@@ -28,8 +28,14 @@ func (s *GetBalanceService) Do(ctx context.Context, opts ...RequestOption) (res 
 		return nil, err
 	}
 
-	res = new(Balance)
-	err = json.Unmarshal(data, &res)
+	resp := new(struct {
+		code int
+		msg  string
+		data map[string]*Balance
+	})
+
+	err = json.Unmarshal(data, &resp)
+	res = resp.data["balance"]
 
 	if err != nil {
 		return nil, err

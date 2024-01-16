@@ -47,8 +47,14 @@ func (s *GetOpenPositionsService) Do(ctx context.Context, opts ...RequestOption)
 		return nil, err
 	}
 
-	res = new([]Position)
-	err = json.Unmarshal(data, &res)
+	resp := new(struct {
+		code int
+		msg  string
+		data *[]Position
+	})
+
+	err = json.Unmarshal(data, &resp)
+	res = resp.data
 
 	if err != nil {
 		return nil, err

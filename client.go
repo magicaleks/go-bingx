@@ -169,3 +169,7 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 func (c *Client) NewGetBalanceService() *GetBalanceService {
 	return &GetBalanceService{c}
 }
+
+func (c *Client) NewGetOpenPositionsService() *GetOpenPositionsService {
+	return &GetOpenPositionsService{c: c}
+}

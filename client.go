@@ -185,3 +185,11 @@ func (c *Client) NewGetBalanceService() *GetBalanceService {
 func (c *Client) NewGetOpenPositionsService() *GetOpenPositionsService {
 	return &GetOpenPositionsService{c: c}
 }
+
+func (c *Client) NewOpenOrderService() *OpenOrderService {
+	return &OpenOrderService{c: c}
+}
+
+func (c *Client) NewCancelOrderService() *CancelOrderService {
+	return &CancelOrderService{c: c}
+}

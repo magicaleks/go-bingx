@@ -22,10 +22,22 @@ const (
 	// baseTestApiUrl = "" Unactual
 )
 
+// Side type of order
+type SideType string
+
+// Type of order
+type OrderType string
+
 const (
 	timestampKey  = "timestamp"
 	signatureKey  = "signature"
 	recvWindowKey = "recvWindow"
+
+	SideTypeBuy  SideType = "BUY"
+	SideTypeSell SideType = "SELL"
+
+	OrderTypeLimit  OrderType = "LIMIT"
+	OrderTypeMarket OrderType = "MARKET"
 )
 
 func getApiEndpoint() string {

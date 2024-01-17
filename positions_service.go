@@ -17,23 +17,23 @@ func (s *GetOpenPositionsService) Symbol(symbol string) *GetOpenPositionsService
 }
 
 type Position struct {
-	Symbol             string `json:"symbol"`
-	PositionId         string `json:"positionId"`
-	PositionSide       string `json:"positionSide"`
-	Isolated           bool   `json:"isolated"`
-	PositionAmt        string `json:"positionAmt"`
-	AvailableAmt       string `json:"availableAmt"`
-	UnrealizedProfit   string `json:"unrealizedProfit"`
-	RealisedProfit     string `json:"realisedProfit"`
-	InitialMargin      string `json:"initialMargin"`
-	AvgPrice           string `json:"avgPrice"`
-	LiquidationPrice   string `json:"liquidationPrice"`
-	Leverage           int    `json:"leverage"`
-	PositionValue      string `json:"positionValue"`
-	MarkPrice          string `json:"markPrice"`
-	RiskRate           string `json:"riskRate"`
-	MaxMarginReduction string `json:"maxMarginReduction"`
-	PnlRatio           string `json:"pnlRatio"`
+	Symbol             string  `json:"symbol"`
+	PositionId         string  `json:"positionId"`
+	PositionSide       string  `json:"positionSide"`
+	Isolated           bool    `json:"isolated"`
+	PositionAmt        string  `json:"positionAmt"`
+	AvailableAmt       string  `json:"availableAmt"`
+	UnrealizedProfit   string  `json:"unrealizedProfit"`
+	RealisedProfit     string  `json:"realisedProfit"`
+	InitialMargin      string  `json:"initialMargin"`
+	AvgPrice           string  `json:"avgPrice"`
+	LiquidationPrice   float64 `json:"liquidationPrice"`
+	Leverage           int     `json:"leverage"`
+	PositionValue      string  `json:"positionValue"`
+	MarkPrice          string  `json:"markPrice"`
+	RiskRate           string  `json:"riskRate"`
+	MaxMarginReduction string  `json:"maxMarginReduction"`
+	PnlRatio           string  `json:"pnlRatio"`
 }
 
 func (s *GetOpenPositionsService) Do(ctx context.Context, opts ...RequestOption) (res *[]Position, err error) {

@@ -29,5 +29,9 @@ func main() {
 		return
 	}
 
-	fmt.Println(res2)
+	for _, position := range *res2 {
+		fmt.Println(position.Symbol)
+		fmt.Println(position.LiquidationPrice)
+		fmt.Println(position.InitialMargin)
+	}
 }

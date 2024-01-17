@@ -27,10 +27,6 @@ func getWsClient(endpoint string) *WsClient {
 	}
 }
 
-// func NewMarketWsClient() *WsClient {
-// 	client := getWsClient(getWsEndpoint())
-// }
-
 type DepthEvent struct {
 	DataType string      `json:"dataType"`
 	Data     interface{} `json:"data"`
@@ -42,7 +38,14 @@ type DepthEvent struct {
 
 type WsDepthHandler func(*DepthEvent)
 
-func WsDepthServe(handler WsDepthHandler, errHandler ErrHandler) (err error) {
-	// client := getWsClient(getWsEndpoint())
-	return nil
+func NewMarketDethWs(symbol string, level, interval int, handler WsDepthHandler) (*WsClient, error) {
+	client := getWsClient(getWsEndpoint())
+	if client.conn == nil {
+		err := client.serve()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	
 }

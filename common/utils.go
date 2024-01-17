@@ -6,17 +6,17 @@ import (
 	"io/ioutil"
 )
 
-func DecodeGzip(data []byte) (string, error) {
+func DecodeGzip(data []byte) ([]byte, error) {
 	reader, err := gzip.NewReader(bytes.NewReader(data))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer reader.Close()
 
 	decodedMsg, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(decodedMsg), nil
+	return decodedMsg, nil
 }

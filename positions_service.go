@@ -28,7 +28,7 @@ type Position struct {
 	InitialMargin      string `json:"initialMargin"`
 	AvgPrice           string `json:"avgPrice"`
 	LiquidationPrice   string `json:"liquidationPrice"`
-	Leverage           string `json:"leverage"`
+	Leverage           int    `json:"leverage"`
 	PositionValue      string `json:"positionValue"`
 	MarkPrice          string `json:"markPrice"`
 	RiskRate           string `json:"riskRate"`

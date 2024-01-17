@@ -10,15 +10,18 @@ type GetBalanceService struct {
 	c *Client
 }
 
+// var channel = "/openApi/user/auth/userDataStream"
+
 type Balance struct {
-	Asset            string  `json:"asset"`
-	Balance          float64 `json:"balance"`
-	Equity           float64 `json:"equity"`
-	UnrealizedProfit float64 `json:"unrealizedProfit"`
-	RealisedProfit   float64 `json:"realisedProfit"`
-	AavailableMargin float64 `json:"availableMargin"`
-	UsedMargin       float64 `json:"usedMargin"`
-	FreezedMargin    float64 `json:"freezedMargin"`
+	UserId           string `json:"userId"`
+	Asset            string `json:"asset"`
+	Balance          string `json:"balance"`
+	Equity           string `json:"equity"`
+	UnrealizedProfit string `json:"unrealizedProfit"`
+	RealisedProfit   string `json:"realisedProfit"`
+	AavailableMargin string `json:"availableMargin"`
+	UsedMargin       string `json:"usedMargin"`
+	FreezedMargin    string `json:"freezedMargin"`
 }
 
 func (s *GetBalanceService) Do(ctx context.Context, opts ...RequestOption) (res *Balance, err error) {
@@ -29,13 +32,13 @@ func (s *GetBalanceService) Do(ctx context.Context, opts ...RequestOption) (res 
 	}
 
 	resp := new(struct {
-		code int
-		msg  string
-		data map[string]*Balance
+		Code int                 `json:"code"`
+		Msg  string              `json:"msg"`
+		Data map[string]*Balance `json:"data"`
 	})
 
-	err = json.Unmarshal(data, &resp)
-	res = resp.data["balance"]
+	err = json.Unmarshal(data, resp)
+	res = resp.Data["balance"]
 
 	if err != nil {
 		return nil, err

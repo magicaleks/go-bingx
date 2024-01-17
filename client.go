@@ -71,7 +71,6 @@ func NewClient(apiKey, secretKey string) *Client {
 		Logger:     log.New(os.Stderr, "bingx-golang", log.LstdFlags),
 	}
 }
-
 func (c *Client) debug(message string, args ...interface{}) {
 	if c.Debug {
 		c.Logger.Printf(message, args...)
@@ -92,13 +91,13 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 
 	timestamp := time.Now().UnixNano() / 1e6
 	if r.query != nil {
+		r.setParam(timestampKey, timestamp)
 		sign := computeHmac256(r.query.Encode(), c.SecretKey)
 		r.setParam(signatureKey, sign)
-		r.setParam(timestampKey, timestamp)
 	} else {
+		r.setFormParam(timestampKey, timestamp)
 		sign := computeHmac256(r.form.Encode(), c.SecretKey)
 		r.setFormParam(signatureKey, sign)
-		r.setFormParam(timestampKey, timestamp)
 	}
 
 	queryString := r.query.Encode()

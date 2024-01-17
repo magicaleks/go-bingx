@@ -84,13 +84,13 @@ func (s *OpenOrderService) Do(ctx context.Context, opts ...RequestOption) (res *
 	}
 
 	resp := new(struct {
-		code int
-		msg  string
-		data map[string]*OpenOrderResponse
+		Code int                           `json:"code"`
+		Msg  string                        `json:"msg"`
+		Data map[string]*OpenOrderResponse `json:"data"`
 	})
 
 	err = json.Unmarshal(data, &resp)
-	res = resp.data["order"]
+	res = resp.Data["order"]
 
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func (s *CancelOrderService) Orders(orderIds ...int) *CancelOrderService {
 
 // Define order
 type Order struct {
-	Time          int    `json:"time"`
+	Time          string `json:"time"`
 	Symbol        string `json:"symbol"`
 	Side          string `json:"side"`
 	OrderType     string `json:"type"`
@@ -132,10 +132,10 @@ type Order struct {
 	OrigQty       string `json:"origQty"`
 	AvgPrice      string `json:"avgPrice"`
 	ExecutedQty   string `json:"executedQty"`
-	OrderId       int    `json:"orderId"`
+	OrderId       string `json:"orderId"`
 	Profit        string `json:"profit"`
 	Commission    string `json:"commission"`
-	UpdateTime    int    `json:"updateTime"`
+	UpdateTime    string `json:"updateTime"`
 	ClientOrderID string `json:"clientOrderID"`
 }
 
@@ -162,13 +162,13 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 	}
 
 	resp := new(struct {
-		code int
-		msg  string
-		data *CancelOrderResponse
+		Code int                  `json:"code"`
+		Msg  string               `json:"msg"`
+		Data *CancelOrderResponse `json:"data"`
 	})
 
 	err = json.Unmarshal(data, &resp)
-	res = resp.data
+	res = resp.Data
 
 	if err != nil {
 		return nil, err

@@ -120,7 +120,7 @@ func (s *CancelOrderService) Orders(orderIds ...int) *CancelOrderService {
 
 // Define order
 type Order struct {
-	Time          string `json:"time"`
+	Time          int    `json:"time"`
 	Symbol        string `json:"symbol"`
 	Side          string `json:"side"`
 	OrderType     string `json:"type"`
@@ -132,7 +132,7 @@ type Order struct {
 	OrigQty       string `json:"origQty"`
 	AvgPrice      string `json:"avgPrice"`
 	ExecutedQty   string `json:"executedQty"`
-	OrderId       string `json:"orderId"`
+	OrderId       int    `json:"orderId"`
 	Profit        string `json:"profit"`
 	Commission    string `json:"commission"`
 	UpdateTime    string `json:"updateTime"`

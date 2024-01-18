@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/magicaleks/go-bingx"
 )
@@ -15,15 +16,15 @@ const (
 func main() {
 	client := bingx.NewClient(APIkey, SecretKey)
 
-	// res1, err := client.NewOpenOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	res1, err := client.NewOpenOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// fmt.Println(res1)
+	fmt.Println(res1)
 
-	res2, err := client.NewCancelOrderService().Order(1747931322549219328).Symbol("XRP-USDT").Do(context.Background())
+	res2, err := client.NewCancelOrderService().Order(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -39,25 +40,41 @@ func main() {
 
 	fmt.Println(res3)
 
-	// var handler = func(event *bingx.WsOrder) {
-	// 	fmt.Println(event)
-	// }
+	res4, err := client.NewGetBalanceService().Do(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// var errHandler = func(err error) {
-	// 	fmt.Println(err)
-	// }
+	fmt.Println(res4)
 
-	// doneC, stopC, _ := bingx.WsOrderUpdateServe(res1, handler, errHandler)
+	res5, err := client.NewGetAccountListenKeyService().Do(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	fmt.Println(res5)
 
-	// go func() {
-	// 	time.Sleep(20 * time.Second)
-	// 	stopC <- struct{}{}
-	// }()
+	var handler = func(event *bingx.WsOrder) {
+		fmt.Println(event)
+	}
 
-	// <-doneC
+	var errHandler = func(err error) {
+		fmt.Println(err)
+	}
+
+	doneC, stopC, _ := bingx.WsOrderUpdateServe(res5, handler, errHandler)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	go func() {
+		time.Sleep(20 * time.Second)
+		stopC <- struct{}{}
+	}()
+
+	<-doneC
 }

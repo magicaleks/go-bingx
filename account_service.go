@@ -10,8 +10,6 @@ type GetBalanceService struct {
 	c *Client
 }
 
-// var channel = "/openApi/user/auth/userDataStream"
-
 type Balance struct {
 	UserId           string `json:"userId"`
 	Asset            string `json:"asset"`
@@ -45,4 +43,27 @@ func (s *GetBalanceService) Do(ctx context.Context, opts ...RequestOption) (res 
 	}
 
 	return res, nil
+}
+
+type GetAccountListenKeyService struct {
+	c *Client
+}
+
+func (s *GetAccountListenKeyService) Do(ctx context.Context, opts ...RequestOption) (res string, err error) {
+	r := &request{method: http.MethodPost, endpoint: "/openApi/user/auth/userDataStream"}
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return "", err
+	}
+
+	resp := new(struct {
+		ListenKey string `json:"listenKey"`
+	})
+
+	err = json.Unmarshal(data, resp)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.ListenKey, nil
 }

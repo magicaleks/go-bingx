@@ -16,9 +16,9 @@ func getWsEndpoint() string {
 	return baseWsUrl
 }
 
-func getAccountWsEndpoint(listenKey string) string {
-	return baseAccountWsUrl + listenKey
-}
+// func getAccountWsEndpoint(listenKey string) string {
+// 	return baseAccountWsUrl + listenKey
+// }
 
 type Event struct {
 	Code     int    `json:"code"`

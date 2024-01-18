@@ -1,12 +1,15 @@
 package bingx
 
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/google/uuid"
+)
+
 const (
 	baseWsUrl        = "wss://open-api-swap.bingx.com/swap-market"
 	baseAccountWsUrl = "wss://open-api-swap.bingx.com/swap-market?listenKey="
-)
-
-var (
-	wsClients map[string]*WsClient
 )
 
 func getWsEndpoint() string {
@@ -17,35 +20,71 @@ func getAccountWsEndpoint(listenKey string) string {
 	return baseAccountWsUrl + listenKey
 }
 
-func getWsClient(endpoint string) *WsClient {
-	if c := wsClients[endpoint]; c != nil {
-		return c
-	}
-
-	return &WsClient{
-		config: newWsConfig(endpoint),
-	}
+type Event struct {
+	Code     int    `json:"code"`
+	DataType string `json:"dataType"`
+	Data     string `json:"data"`
 }
 
-type DepthEvent struct {
+type RequestType string
+
+const (
+	SubscribeRequestType  RequestType = "sub"
+	UnubscribeRequestType RequestType = "unsub"
+)
+
+type RequestEvent struct {
+	Id       uuid.UUID   `json:"id"`
+	ReqType  RequestType `json:"reqType"`
 	DataType string      `json:"dataType"`
-	Data     interface{} `json:"data"`
-	Asks     interface{} `json:"asks"`
-	Bids     interface{} `json:"bids"`
-	Price    float64     `json:"p"`
-	Volume   float64     `json:"v"`
 }
 
-type WsDepthHandler func(*DepthEvent)
+type KLineEvent struct {
+	Data   interface{} `json:"data"`
+	Asks   interface{} `json:"asks"`
+	Bids   interface{} `json:"bids"`
+	Price  float64     `json:"p"`
+	Volume float64     `json:"v"`
+}
 
-func NewMarketDethWs(symbol string, level, interval int, handler WsDepthHandler) (*WsClient, error) {
-	client := getWsClient(getWsEndpoint())
-	if client.conn == nil {
-		err := client.serve()
-		if err != nil {
-			return nil, err
-		}
+type WsKLineHandler func(*KLineEvent)
+
+func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	// Symbol e.g. "BTC-USDT"
+	// Interval e.g. "1m", "3h"
+	reqEvent := RequestEvent{
+		Id:       uuid.New(),
+		ReqType:  SubscribeRequestType,
+		DataType: fmt.Sprintf("%s@kline_%s", symbol, interval),
 	}
 
-	
+	var wsHandler = func(data []byte) {
+
+		ev := new(Event)
+		err := json.Unmarshal(data, ev)
+		if err != nil {
+			errHandler(err)
+			return
+		}
+
+		if ev.DataType == reqEvent.DataType {
+			event := new(KLineEvent)
+			err := json.Unmarshal(data, event)
+			if err != nil {
+				errHandler(err)
+				return
+			}
+
+			handler(event)
+		}
+
+	}
+
+	initMessage, err := json.Marshal(reqEvent)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return wsServe(initMessage, newWsConfig(getWsEndpoint()), wsHandler, errHandler)
+
 }

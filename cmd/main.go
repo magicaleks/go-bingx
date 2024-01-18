@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/magicaleks/go-bingx"
 )
@@ -34,4 +35,26 @@ func main() {
 		fmt.Println(position.LiquidationPrice)
 		fmt.Println(position.InitialMargin)
 	}
+
+	var handler = func(event *bingx.KLineEvent) {
+		fmt.Println("High level handler: ", event)
+	}
+
+	var errHandler = func(err error) {
+		fmt.Println(err)
+	}
+
+	doneC, stopC, _ := bingx.WsKLineServe("BTC-USDT", "1m", handler, errHandler)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	go func() {
+		time.Sleep(10 * time.Second)
+		stopC <- struct{}{}
+	}()
+
+	<-doneC
 }

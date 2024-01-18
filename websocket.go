@@ -1,6 +1,7 @@
 package bingx
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -75,7 +76,9 @@ var wsServe = func(initMessage []byte, config *WsConfig, handler WsHandler, errH
 					}
 					return
 				}
+				continue
 			}
+			fmt.Println(string(decodedMsg))
 			handler(decodedMsg)
 		}
 	}()

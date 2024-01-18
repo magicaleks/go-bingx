@@ -3,6 +3,7 @@ package bingx
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/google/uuid"
 )
@@ -21,9 +22,9 @@ func getWsEndpoint() string {
 // }
 
 type Event struct {
-	Code     int    `json:"code"`
-	DataType string `json:"dataType"`
-	Data     string `json:"data"`
+	Code     int         `json:"code"`
+	DataType string      `json:"dataType"`
+	Data     interface{} `json:"data"`
 }
 
 type RequestType string
@@ -40,11 +41,12 @@ type RequestEvent struct {
 }
 
 type KLineEvent struct {
-	Data   interface{} `json:"data"`
-	Asks   interface{} `json:"asks"`
-	Bids   interface{} `json:"bids"`
-	Price  float64     `json:"p"`
-	Volume float64     `json:"v"`
+	C      float64 `json:"c"`
+	H      float64 `json:"h"`
+	L      float64 `json:"l"`
+	O      float64 `json:"o"`
+	V      float64 `json:"v"`
+	Symbol string  `json:"s"`
 }
 
 type WsKLineHandler func(*KLineEvent)
@@ -67,12 +69,32 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 			return
 		}
 
+		fmt.Println("Low level handler: ", ev)
+
 		if ev.DataType == reqEvent.DataType {
-			event := new(KLineEvent)
-			err := json.Unmarshal(data, event)
+			_eventData := new(struct {
+				Symbol string                   `json:"s"`
+				Data   []map[string]interface{} `json:"data"`
+			})
+			err := json.Unmarshal(data, _eventData)
 			if err != nil {
 				errHandler(err)
 				return
+			}
+
+			c, _ := strconv.ParseFloat(_eventData.Data[0]["c"].(string), 64)
+			h, _ := strconv.ParseFloat(_eventData.Data[0]["h"].(string), 64)
+			l, _ := strconv.ParseFloat(_eventData.Data[0]["l"].(string), 64)
+			o, _ := strconv.ParseFloat(_eventData.Data[0]["o"].(string), 64)
+			v, _ := strconv.ParseFloat(_eventData.Data[0]["v"].(string), 64)
+
+			event := &KLineEvent{
+				Symbol: _eventData.Symbol,
+				C:      c,
+				H:      h,
+				L:      l,
+				O:      o,
+				V:      v,
 			}
 
 			handler(event)

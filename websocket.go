@@ -1,7 +1,6 @@
 package bingx
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -34,9 +33,11 @@ var wsServe = func(initMessage []byte, config *WsConfig, handler WsHandler, errH
 		return nil, nil, err
 	}
 
-	err = c.WriteMessage(websocket.TextMessage, initMessage)
-	if err != nil {
-		return nil, nil, err
+	if initMessage != nil {
+		err = c.WriteMessage(websocket.TextMessage, initMessage)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
 
 	c.SetReadLimit(655350)
@@ -78,7 +79,6 @@ var wsServe = func(initMessage []byte, config *WsConfig, handler WsHandler, errH
 				}
 				continue
 			}
-			fmt.Println(string(decodedMsg))
 			handler(decodedMsg)
 		}
 	}()

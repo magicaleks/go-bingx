@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/magicaleks/go-bingx"
 )
@@ -16,45 +15,49 @@ const (
 func main() {
 	client := bingx.NewClient(APIkey, SecretKey)
 
-	res1, err := client.NewGetBalanceService().Do(context.Background())
+	// res1, err := client.NewOpenOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// fmt.Println(res1)
+
+	res2, err := client.NewCancelOrderService().Order(1747931322549219328).Symbol("XRP-USDT").Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(res1.Balance)
+	fmt.Println(res2)
 
-	res2, err := client.NewGetOpenPositionsService().Do(context.Background())
+	res3, err := client.NewGetOpenPositionsService().Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	for _, position := range *res2 {
-		fmt.Println(position.Symbol)
-		fmt.Println(position.LiquidationPrice)
-		fmt.Println(position.InitialMargin)
-	}
+	fmt.Println(res3)
 
-	var handler = func(event *bingx.KLineEvent) {
-		fmt.Println("High level handler: ", event)
-	}
+	// var handler = func(event *bingx.WsOrder) {
+	// 	fmt.Println(event)
+	// }
 
-	var errHandler = func(err error) {
-		fmt.Println(err)
-	}
+	// var errHandler = func(err error) {
+	// 	fmt.Println(err)
+	// }
 
-	doneC, stopC, _ := bingx.WsKLineServe("BTC-USDT", "1m", handler, errHandler)
+	// doneC, stopC, _ := bingx.WsOrderUpdateServe(res1, handler, errHandler)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	go func() {
-		time.Sleep(10 * time.Second)
-		stopC <- struct{}{}
-	}()
+	// go func() {
+	// 	time.Sleep(20 * time.Second)
+	// 	stopC <- struct{}{}
+	// }()
 
-	<-doneC
+	// <-doneC
 }

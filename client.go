@@ -26,19 +26,42 @@ const (
 // Side type of order
 type SideType string
 
+// PositionSide type of order
+type PositionSideType string
+
 // Type of order
 type OrderType string
+
+type OrderStatus string
+
+type OrderSpecType string
 
 const (
 	timestampKey  = "timestamp"
 	signatureKey  = "signature"
 	recvWindowKey = "recvWindow"
 
-	SideTypeBuy  SideType = "BUY"
-	SideTypeSell SideType = "SELL"
+	BuySideType  SideType = "BUY"
+	SellSideType SideType = "SELL"
 
-	OrderTypeLimit  OrderType = "LIMIT"
-	OrderTypeMarket OrderType = "MARKET"
+	ShortPositionSideType PositionSideType = "SHORT"
+	LongPositionSideType  PositionSideType = "LONG"
+	BothPositionSideType  PositionSideType = "BOTH"
+
+	LimitOrderType  OrderType = "LIMIT"
+	MarketOrderType OrderType = "MARKET"
+
+	NewOrderStatus             OrderStatus = "NEW"
+	PartiallyFilledOrderStatus OrderStatus = "PARTIALLY_FILLED"
+	FilledOrderStatus          OrderStatus = "FILLED"
+	CanceledOrderStatus        OrderStatus = "CANCELED"
+	ExpiredOrderStatus         OrderStatus = "EXPIRED"
+
+	NewOrderSpecType        OrderSpecType = "NEW"
+	CanceledOrderSpecType   OrderSpecType = "CANCELED"
+	CalculatedOrderSpecType OrderSpecType = "CALCULATED"
+	ExpiredOrderSpecType    OrderSpecType = "EXPIRED"
+	TradeOrderSpecType      OrderSpecType = "TRADE"
 )
 
 func getApiEndpoint() string {
@@ -167,12 +190,10 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	c.debug("response body: %s", string(data))
 	c.debug("response status code: %d", res.StatusCode)
 
-	if res.StatusCode >= http.StatusBadRequest {
-		apiErr := new(common.APIError)
-		e := json.Unmarshal(data, apiErr)
-		if e != nil {
-			c.debug("failed to unmarshal json: %s", e)
-		}
+	apiErr := new(common.APIError)
+	json.Unmarshal(data, apiErr)
+
+	if apiErr.Code != 0 {
 		return nil, apiErr
 	}
 	return data, nil
@@ -180,6 +201,10 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 
 func (c *Client) NewGetBalanceService() *GetBalanceService {
 	return &GetBalanceService{c}
+}
+
+func (c *Client) NewGetAccountListenKeyService() *GetAccountListenKeyService {
+	return &GetAccountListenKeyService{c: c}
 }
 
 func (c *Client) NewGetOpenPositionsService() *GetOpenPositionsService {

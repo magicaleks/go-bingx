@@ -17,9 +17,9 @@ func getWsEndpoint() string {
 	return baseWsUrl
 }
 
-// func getAccountWsEndpoint(listenKey string) string {
-// 	return baseAccountWsUrl + listenKey
-// }
+func getAccountWsEndpoint(listenKey string) string {
+	return baseAccountWsUrl + listenKey
+}
 
 type Event struct {
 	Code     int         `json:"code"`
@@ -40,7 +40,7 @@ type RequestEvent struct {
 	DataType string      `json:"dataType"`
 }
 
-type KLineEvent struct {
+type WsKLineEvent struct {
 	C      float64 `json:"c"`
 	H      float64 `json:"h"`
 	L      float64 `json:"l"`
@@ -49,7 +49,7 @@ type KLineEvent struct {
 	Symbol string  `json:"s"`
 }
 
-type WsKLineHandler func(*KLineEvent)
+type WsKLineHandler func(*WsKLineEvent)
 
 func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	// Symbol e.g. "BTC-USDT"
@@ -69,8 +69,6 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 			return
 		}
 
-		fmt.Println("Low level handler: ", ev)
-
 		if ev.DataType == reqEvent.DataType {
 			_eventData := new(struct {
 				Symbol string                   `json:"s"`
@@ -88,7 +86,7 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 			o, _ := strconv.ParseFloat(_eventData.Data[0]["o"].(string), 64)
 			v, _ := strconv.ParseFloat(_eventData.Data[0]["v"].(string), 64)
 
-			event := &KLineEvent{
+			event := &WsKLineEvent{
 				Symbol: _eventData.Symbol,
 				C:      c,
 				H:      h,
@@ -108,5 +106,52 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 	}
 
 	return wsServe(initMessage, newWsConfig(getWsEndpoint()), wsHandler, errHandler)
+}
 
+type WsOrder struct {
+	Symbol        string        `json:"s"`
+	Side          SideType      `json:"S"`
+	OrderType     OrderType     `json:"o"`
+	Price         string        `json:"p"`
+	AveragePrice  string        `json:"ap"`
+	Quantity      string        `json:"q"`
+	StopPrice     string        `json:"sp"`
+	Status        OrderStatus   `json:"X"`
+	Spec          OrderSpecType `json:"x"`
+	Timestamp     int           `json:"T"`
+	OrderId       int           `json:"i"`
+	ClientOrderID string        `json:"c"`
+}
+
+type WsOrderUpdateEvent struct {
+	EventType string   `json:"e"`
+	Time      int      `json:"E"`
+	Order     *WsOrder `json:"o"`
+}
+
+type WsOrderUpdateHandler func(*WsOrder)
+
+func WsOrderUpdateServe(listenKey string, handler WsOrderUpdateHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	var wsHandler = func(data []byte) {
+
+		var evMap map[string]interface{}
+		err := json.Unmarshal(data, &evMap)
+		if err != nil {
+			errHandler(err)
+			return
+		}
+
+		if evMap["e"].(string) == "ORDER_TRADE_UPDATE" {
+			event := new(WsOrderUpdateEvent)
+			err = json.Unmarshal(data, event)
+			if err != nil {
+				errHandler(err)
+				return
+			}
+			handler(event.Order)
+		}
+
+	}
+
+	return wsServe(nil, newWsConfig(getAccountWsEndpoint(listenKey)), wsHandler, errHandler)
 }

@@ -24,7 +24,7 @@ func main() {
 
 	fmt.Println(res1)
 
-	res2, err := client.NewCancelOrderService().Order(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
+	res2, err := client.NewCancelOrderService().OrderId(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return

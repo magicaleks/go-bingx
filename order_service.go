@@ -7,57 +7,63 @@ import (
 )
 
 // Only Market and Limit orders supported
-type OpenOrderService struct {
-	c            *Client
-	symbol       string
-	orderType    OrderType
-	side         SideType
-	positionSide PositionSideType
-	reduceOnly   string
-	price        float64
-	quantity     float64
+type CreateOrderService struct {
+	c             *Client
+	symbol        string
+	orderType     OrderType
+	side          SideType
+	positionSide  PositionSideType
+	clientOrderID string
+	reduceOnly    string
+	price         float64
+	quantity      float64
 }
 
-func (s *OpenOrderService) Symbol(symbol string) *OpenOrderService {
+func (s *CreateOrderService) Symbol(symbol string) *CreateOrderService {
 	s.symbol = symbol
 	return s
 }
 
-func (s *OpenOrderService) Type(orderType OrderType) *OpenOrderService {
+func (s *CreateOrderService) Type(orderType OrderType) *CreateOrderService {
 	s.orderType = orderType
 	return s
 }
 
-func (s *OpenOrderService) Side(side SideType) *OpenOrderService {
+func (s *CreateOrderService) Side(side SideType) *CreateOrderService {
 	s.side = side
 	return s
 }
 
-func (s *OpenOrderService) PositionSide(side PositionSideType) *OpenOrderService {
+func (s *CreateOrderService) PositionSide(side PositionSideType) *CreateOrderService {
 	s.positionSide = side
 	return s
 }
 
-func (s *OpenOrderService) ReduceOnly() *OpenOrderService {
+func (s *CreateOrderService) ClientOrderID(clientOrderID string) *CreateOrderService {
+	s.clientOrderID = clientOrderID
+	return s
+}
+
+func (s *CreateOrderService) ReduceOnly() *CreateOrderService {
 	s.reduceOnly = "true"
 	return s
 }
 
-func (s *OpenOrderService) Price(price float64) *OpenOrderService {
+func (s *CreateOrderService) Price(price float64) *CreateOrderService {
 	s.price = price
 	return s
 }
 
-func (s *OpenOrderService) Quantity(quantity float64) *OpenOrderService {
+func (s *CreateOrderService) Quantity(quantity float64) *CreateOrderService {
 	s.quantity = quantity
 	return s
 }
 
-type OpenOrderResponse struct {
+type CreateOrderResponse struct {
 	OrderId int `json:"orderId"`
 }
 
-func (s *OpenOrderService) Do(ctx context.Context, opts ...RequestOption) (res *OpenOrderResponse, err error) {
+func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, err error) {
 	r := &request{method: http.MethodPost, endpoint: "/openApi/swap/v2/trade/order"}
 
 	if s.symbol != "" {
@@ -78,6 +84,10 @@ func (s *OpenOrderService) Do(ctx context.Context, opts ...RequestOption) (res *
 		r.addParam("positionSide", BothPositionSideType)
 	}
 
+	if s.clientOrderID != "" {
+		r.addParam("clientOrderID", s.clientOrderID)
+	}
+
 	if s.reduceOnly != "" {
 		r.addParam("reduceOnly", s.reduceOnly)
 	}
@@ -96,9 +106,9 @@ func (s *OpenOrderService) Do(ctx context.Context, opts ...RequestOption) (res *
 	}
 
 	resp := new(struct {
-		Code int                           `json:"code"`
-		Msg  string                        `json:"msg"`
-		Data map[string]*OpenOrderResponse `json:"data"`
+		Code int                             `json:"code"`
+		Msg  string                          `json:"msg"`
+		Data map[string]*CreateOrderResponse `json:"data"`
 	})
 
 	err = json.Unmarshal(data, &resp)
@@ -112,9 +122,10 @@ func (s *OpenOrderService) Do(ctx context.Context, opts ...RequestOption) (res *
 }
 
 type CancelOrderService struct {
-	c       *Client
-	symbol  string
-	orderId int
+	c             *Client
+	symbol        string
+	orderId       int
+	clientOrderID string
 }
 
 func (s *CancelOrderService) Symbol(symbol string) *CancelOrderService {
@@ -122,8 +133,14 @@ func (s *CancelOrderService) Symbol(symbol string) *CancelOrderService {
 	return s
 }
 
-func (s *CancelOrderService) Order(orderId int) *CancelOrderService {
+func (s *CancelOrderService) OrderId(orderId int) *CancelOrderService {
 	s.orderId = orderId
+
+	return s
+}
+
+func (s *CancelOrderService) ClientOrderId(clientOrderID string) *CancelOrderService {
+	s.clientOrderID = clientOrderID
 
 	return s
 }
@@ -179,6 +196,10 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 		r.addParam("orderId", s.orderId)
 	}
 
+	if s.clientOrderID != "" {
+		r.addParam("clientOrderID", s.clientOrderID)
+	}
+
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return nil, err
@@ -191,11 +212,12 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 	})
 
 	err = json.Unmarshal(data, &resp)
-	res = resp.Data["order"]
 
 	if err != nil {
 		return nil, err
 	}
+
+	res = resp.Data["order"]
 
 	return res, nil
 }

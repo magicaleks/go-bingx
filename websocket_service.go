@@ -41,12 +41,12 @@ type RequestEvent struct {
 }
 
 type WsKLineEvent struct {
-	C      float64 `json:"c"`
-	H      float64 `json:"h"`
-	L      float64 `json:"l"`
-	O      float64 `json:"o"`
-	V      float64 `json:"v"`
 	Symbol string  `json:"s"`
+	Open   float64 `json:"o"`
+	Close  float64 `json:"c"`
+	High   float64 `json:"h"`
+	Low    float64 `json:"l"`
+	Volume float64 `json:"v"`
 }
 
 type WsKLineHandler func(*WsKLineEvent)
@@ -88,11 +88,11 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 
 			event := &WsKLineEvent{
 				Symbol: _eventData.Symbol,
-				C:      c,
-				H:      h,
-				L:      l,
-				O:      o,
-				V:      v,
+				Open:   o,
+				Close:  c,
+				High:   h,
+				Low:    l,
+				Volume: v,
 			}
 
 			handler(event)

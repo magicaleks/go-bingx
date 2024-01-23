@@ -105,6 +105,8 @@ func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 		return nil, err
 	}
 
+	//fmt.Print(string(data))
+
 	resp := new(struct {
 		Code int                             `json:"code"`
 		Msg  string                          `json:"msg"`

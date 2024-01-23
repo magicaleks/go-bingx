@@ -211,7 +211,7 @@ func (c *Client) NewGetOpenPositionsService() *GetOpenPositionsService {
 	return &GetOpenPositionsService{c: c}
 }
 
-func (c *Client) NewOpenOrderService() *CreateOrderService {
+func (c *Client) NewCreateOrderService() *CreateOrderService {
 	return &CreateOrderService{c: c}
 }
 

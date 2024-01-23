@@ -16,7 +16,7 @@ const (
 func main() {
 	client := bingx.NewClient(APIkey, SecretKey)
 
-	res1, err := client.NewOpenOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
+	res1, err := client.NewCreateOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return

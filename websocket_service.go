@@ -61,6 +61,7 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 	}
 
 	var wsHandler = func(data []byte) {
+		//fmt.Println(string(data))
 
 		ev := new(Event)
 		err := json.Unmarshal(data, ev)

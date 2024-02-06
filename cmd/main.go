@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/magicaleks/go-bingx"
 )
@@ -16,73 +15,81 @@ const (
 func main() {
 	client := bingx.NewClient(APIkey, SecretKey)
 
-	res1, err := client.NewCreateOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
+	res1, err := client.NewGetKlinesService().Symbol("XRP-USDT").Interval(bingx.Interval1).Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(res1)
+	fmt.Println(res1[0])
 
-	res6, err := client.NewGetOrderService().Symbol("XRP-USDT").OrderId(res1.OrderId).Do(context.Background())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// res1, err := client.NewCreateOrderService().Symbol("XRP-USDT").Quantity(16).Type(bingx.LimitOrderType).Side(bingx.BuySideType).Price(0.5).Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	fmt.Println(res6)
+	// fmt.Println(res1)
 
-	res3, err := client.NewGetOpenPositionsService().Do(context.Background())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// res6, err := client.NewGetOrderService().Symbol("XRP-USDT").OrderId(res1.OrderId).Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	fmt.Println(res3)
+	// fmt.Println(res6)
 
-	res2, err := client.NewCancelOrderService().OrderId(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// res3, err := client.NewGetOpenPositionsService().Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	fmt.Println(res2)
+	// fmt.Println(res3)
 
-	res4, err := client.NewGetBalanceService().Do(context.Background())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// res2, err := client.NewCancelOrderService().OrderId(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	fmt.Println(res4)
+	// fmt.Println(res2)
 
-	res5, err := client.NewGetAccountListenKeyService().Do(context.Background())
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// res4, err := client.NewGetBalanceService().Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	fmt.Println(res5)
+	// fmt.Println(res4)
 
-	var handler = func(event *bingx.WsOrder) {
-		fmt.Println(event)
-	}
+	// res5, err := client.NewGetAccountListenKeyService().Do(context.Background())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	var errHandler = func(err error) {
-		fmt.Println(err)
-	}
+	// fmt.Println(res5)
 
-	doneC, stopC, _ := bingx.WsOrderUpdateServe(res5, handler, errHandler)
+	// var handler = func(event *bingx.WsOrder) {
+	// 	fmt.Println(event)
+	// }
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// var errHandler = func(err error) {
+	// 	fmt.Println(err)
+	// }
 
-	go func() {
-		time.Sleep(20 * time.Second)
-		stopC <- struct{}{}
-	}()
+	// doneC, stopC, _ := bingx.WsOrderUpdateServe(res5, handler, errHandler)
 
-	<-doneC
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
+	// go func() {
+	// 	time.Sleep(20 * time.Second)
+	// 	stopC <- struct{}{}
+	// }()
+
+	// <-doneC
 }

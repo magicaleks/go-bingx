@@ -70,6 +70,30 @@ const (
 	IndexOrderWorkingType    OrderWorkingType = "INDEX_PRICE"
 )
 
+type Interval string
+
+const (
+	Interval1  Interval = "1m"
+	Interval3  Interval = "3m"
+	Interval5  Interval = "5m"
+	Interval15 Interval = "15m"
+	Interval30 Interval = "30m"
+
+	Interval60  Interval = "1h"
+	Interval2h  Interval = "2h"
+	Interval4h  Interval = "4h"
+	Interval6h  Interval = "6h"
+	Interval8h  Interval = "8h"
+	Interval12h Interval = "12h"
+
+	Interval1d Interval = "1d"
+	Interval3d Interval = "3d"
+
+	Interval1w Interval = "1w"
+
+	Interval1M Interval = "1M"
+)
+
 func getApiEndpoint() string {
 	return baseApiUrl
 }
@@ -227,4 +251,8 @@ func (c *Client) NewCancelOrderService() *CancelOrderService {
 
 func (c *Client) NewGetOrderService() *GetOrderService {
 	return &GetOrderService{c: c}
+}
+
+func (c *Client) NewGetKlinesService() *GetKlinesService {
+	return &GetKlinesService{c: c}
 }

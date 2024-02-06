@@ -147,25 +147,6 @@ func (s *CancelOrderService) ClientOrderId(clientOrderID string) *CancelOrderSer
 	return s
 }
 
-// Define order
-type Order struct {
-	Symbol        string      `json:"symbol"`
-	Side          SideType    `json:"side"`
-	OrderType     OrderType   `json:"type"`
-	Status        OrderStatus `json:"status"`
-	ReduceOnly    bool        `json:"reduceOnly"`
-	Price         string      `json:"price"`
-	Quantity      string      `json:"quantity"`
-	StopPrice     string      `json:"stopPrice"`
-	PriceRate     string      `json:"priceRate"`
-	StopLoss      string      `json:"stopLoss"`   // mb later
-	TakeProfit    string      `json:"takeProfit"` // mb later
-	WorkingType   string      `json:"workingType"`
-	Timestamp     string      `json:"timestamp"`
-	OrderId       int         `json:"orderId"`
-	ClientOrderID string      `json:"clientOrderID"`
-}
-
 // Define response of cancel order request
 type CancelOrderResponse struct {
 	Time          int              `json:"time"`
@@ -211,6 +192,88 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 		Code int                             `json:"code"`
 		Msg  string                          `json:"msg"`
 		Data map[string]*CancelOrderResponse `json:"data"`
+	})
+
+	err = json.Unmarshal(data, &resp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res = resp.Data["order"]
+
+	return res, nil
+}
+
+type GetOrderService struct {
+	c             *Client
+	symbol        string
+	orderId       int
+	clientOrderID string
+}
+
+// Define response of get order request
+type GetOrderResponse struct {
+	Time          int64            `json:"time"`
+	Symbol        string           `json:"symbol"`
+	Side          SideType         `json:"side"`
+	OrderType     OrderType        `json:"type"`
+	PositionSide  PositionSideType `json:"positionSide"`
+	ReduceOnly    bool             `json:"reduceOnly"`
+	CumQuote      string           `json:"cumQuote"`
+	Status        OrderStatus      `json:"status"`
+	StopPrice     string           `json:"stopPrice"`
+	Price         string           `json:"price"`
+	OrigQuantity  string           `json:"origQty"`
+	AveragePrice  string           `json:"avgPrice"`
+	Quantity      string           `json:"executedQty"`
+	OrderId       int              `json:"orderId"`
+	Profit        string           `json:"profit"`
+	Fee           string           `json:"commission"`
+	UpdateTime    int64            `json:"ppdateTime"`
+	WorkingType   OrderWorkingType `json:"workingType"`
+	ClientOrderID string           `json:"clientOrderID"`
+}
+
+func (s *GetOrderService) Symbol(symbol string) *GetOrderService {
+	s.symbol = symbol
+	return s
+}
+
+func (s *GetOrderService) OrderId(orderId int) *GetOrderService {
+	s.orderId = orderId
+	return s
+}
+
+func (s *GetOrderService) ClientOrderId(clientOrderID string) *GetOrderService {
+	s.clientOrderID = clientOrderID
+	return s
+}
+
+func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *GetOrderResponse, err error) {
+	r := &request{method: http.MethodGet, endpoint: "/openApi/swap/v2/trade/order"}
+
+	if s.symbol != "" {
+		r.addParam("symbol", s.symbol)
+	}
+
+	if s.orderId != 0 {
+		r.addParam("orderId", s.orderId)
+	}
+
+	if s.clientOrderID != "" {
+		r.addParam("clientOrderID", s.clientOrderID)
+	}
+
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := new(struct {
+		Code int                          `json:"code"`
+		Msg  string                       `json:"msg"`
+		Data map[string]*GetOrderResponse `json:"data"`
 	})
 
 	err = json.Unmarshal(data, &resp)

@@ -36,6 +36,8 @@ type OrderStatus string
 
 type OrderSpecType string
 
+type OrderWorkingType string
+
 const (
 	timestampKey  = "timestamp"
 	signatureKey  = "signature"
@@ -62,6 +64,10 @@ const (
 	CalculatedOrderSpecType OrderSpecType = "CALCULATED"
 	ExpiredOrderSpecType    OrderSpecType = "EXPIRED"
 	TradeOrderSpecType      OrderSpecType = "TRADE"
+
+	MarkOrderWorkingType     OrderWorkingType = "MARK_PRICE"
+	ContractOrderWorkingType OrderWorkingType = "CONTRACT_PRICE"
+	IndexOrderWorkingType    OrderWorkingType = "INDEX_PRICE"
 )
 
 func getApiEndpoint() string {
@@ -217,4 +223,8 @@ func (c *Client) NewCreateOrderService() *CreateOrderService {
 
 func (c *Client) NewCancelOrderService() *CancelOrderService {
 	return &CancelOrderService{c: c}
+}
+
+func (c *Client) NewGetOrderService() *GetOrderService {
+	return &GetOrderService{c: c}
 }

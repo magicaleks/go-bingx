@@ -24,13 +24,13 @@ func main() {
 
 	fmt.Println(res1)
 
-	res2, err := client.NewCancelOrderService().OrderId(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
+	res6, err := client.NewGetOrderService().Symbol("XRP-USDT").OrderId(res1.OrderId).Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(res2)
+	fmt.Println(res6)
 
 	res3, err := client.NewGetOpenPositionsService().Do(context.Background())
 	if err != nil {
@@ -39,6 +39,14 @@ func main() {
 	}
 
 	fmt.Println(res3)
+
+	res2, err := client.NewCancelOrderService().OrderId(res1.OrderId).Symbol("XRP-USDT").Do(context.Background())
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(res2)
 
 	res4, err := client.NewGetBalanceService().Do(context.Background())
 	if err != nil {

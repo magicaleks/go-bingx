@@ -9,8 +9,10 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 	symbol := "LINK-USDT"
-	doneC, _, err := bingx.WsKLineServe(symbol, "1m", func(event *bingx.WsKLineEvent) {
-		log.Printf("%s price update: %+v", symbol, event)
+	doneC, _, err := bingx.WsKLineServe(symbol, bingx.Interval1, func(event *bingx.WsKLineEvent) {
+		if event.Completed {
+			log.Printf("%s price update: %+v", symbol, event)
+		}
 	}, func(err error) {
 		log.Printf("WsKLine error: %s\n", err)
 	})

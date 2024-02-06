@@ -27,31 +27,33 @@ type Event struct {
 	Data     interface{} `json:"data"`
 }
 
-type RequestType string
+type WsRequestType string
 
 const (
-	SubscribeRequestType  RequestType = "sub"
-	UnubscribeRequestType RequestType = "unsub"
+	SubscribeRequestType  WsRequestType = "sub"
+	UnubscribeRequestType WsRequestType = "unsub"
 )
 
 type RequestEvent struct {
-	Id       uuid.UUID   `json:"id"`
-	ReqType  RequestType `json:"reqType"`
-	DataType string      `json:"dataType"`
+	Id       uuid.UUID     `json:"id"`
+	ReqType  WsRequestType `json:"reqType"`
+	DataType string        `json:"dataType"`
 }
 
 type WsKLineEvent struct {
-	Symbol string  `json:"s"`
-	Open   float64 `json:"o"`
-	Close  float64 `json:"c"`
-	High   float64 `json:"h"`
-	Low    float64 `json:"l"`
-	Volume float64 `json:"v"`
+	Symbol    string  `json:"s"`
+	Open      float64 `json:"o"`
+	Close     float64 `json:"c"`
+	High      float64 `json:"h"`
+	Low       float64 `json:"l"`
+	Volume    float64 `json:"v"`
+	Time      float64 `json:"T"`
+	Completed bool
 }
 
 type WsKLineHandler func(*WsKLineEvent)
 
-func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+func WsKLineServe(symbol string, interval Interval, handler WsKLineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	// Symbol e.g. "BTC-USDT"
 	// Interval e.g. "1m", "3h"
 	reqEvent := RequestEvent{
@@ -60,9 +62,9 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 		DataType: fmt.Sprintf("%s@kline_%s", symbol, interval),
 	}
 
-	var wsHandler = func(data []byte) {
-		//fmt.Println(string(data))
+	var lastEvent *WsKLineEvent
 
+	var wsHandler = func(data []byte) {
 		ev := new(Event)
 		err := json.Unmarshal(data, ev)
 		if err != nil {
@@ -86,17 +88,31 @@ func WsKLineServe(symbol string, interval string, handler WsKLineHandler, errHan
 			l, _ := strconv.ParseFloat(_eventData.Data[0]["l"].(string), 64)
 			o, _ := strconv.ParseFloat(_eventData.Data[0]["o"].(string), 64)
 			v, _ := strconv.ParseFloat(_eventData.Data[0]["v"].(string), 64)
+			t := _eventData.Data[0]["T"].(float64)
 
 			event := &WsKLineEvent{
-				Symbol: _eventData.Symbol,
-				Open:   o,
-				Close:  c,
-				High:   h,
-				Low:    l,
-				Volume: v,
+				Symbol:    _eventData.Symbol,
+				Open:      o,
+				Close:     c,
+				High:      h,
+				Low:       l,
+				Volume:    v,
+				Time:      t,
+				Completed: false,
 			}
 
-			handler(event)
+			if lastEvent == nil {
+				lastEvent = event
+			}
+
+			if lastEvent.Time != event.Time {
+				lastEvent.Completed = true
+			}
+
+			handler(lastEvent)
+
+			lastEvent = event
+
 		}
 
 	}

@@ -229,8 +229,41 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	return data, nil
 }
 
+type GetServerTimeService struct {
+	c *Client
+}
+
+func (s *GetServerTimeService) Do(ctx context.Context, opts ...RequestOption) (res int64, err error) {
+	r := &request{method: http.MethodGet, endpoint: "/openApi/swap/v2/server/time"}
+
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return 0, err
+	}
+
+	resp := new(struct {
+		Code int              `json:"code"`
+		Msg  string           `json:"msg"`
+		Data map[string]int64 `json:"data"`
+	})
+
+	err = json.Unmarshal(data, &resp)
+
+	if err != nil {
+		return 0, err
+	}
+
+	res = resp.Data["serverTime"]
+
+	return res, nil
+}
+
+func (c *Client) NewGetServerTimeService() *GetServerTimeService {
+	return &GetServerTimeService{c: c}
+}
+
 func (c *Client) NewGetBalanceService() *GetBalanceService {
-	return &GetBalanceService{c}
+	return &GetBalanceService{c: c}
 }
 
 func (c *Client) NewGetAccountListenKeyService() *GetAccountListenKeyService {

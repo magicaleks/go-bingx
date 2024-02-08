@@ -40,7 +40,7 @@ type RequestEvent struct {
 	DataType string        `json:"dataType"`
 }
 
-type WsKLineEvent struct {
+type WsKlineEvent struct {
 	Symbol    string  `json:"s"`
 	Open      float64 `json:"o"`
 	Close     float64 `json:"c"`
@@ -51,9 +51,9 @@ type WsKLineEvent struct {
 	Completed bool
 }
 
-type WsKLineHandler func(*WsKLineEvent)
+type WsKlineHandler func(*WsKlineEvent)
 
-func WsKLineServe(symbol string, interval Interval, handler WsKLineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+func WsKlineServe(symbol string, interval Interval, handler WsKlineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	// Symbol e.g. "BTC-USDT"
 	// Interval e.g. "1m", "3h"
 	reqEvent := RequestEvent{
@@ -62,7 +62,7 @@ func WsKLineServe(symbol string, interval Interval, handler WsKLineHandler, errH
 		DataType: fmt.Sprintf("%s@kline_%s", symbol, interval),
 	}
 
-	var lastEvent *WsKLineEvent
+	var lastEvent *WsKlineEvent
 
 	var wsHandler = func(data []byte) {
 		ev := new(Event)
@@ -90,7 +90,7 @@ func WsKLineServe(symbol string, interval Interval, handler WsKLineHandler, errH
 			v, _ := strconv.ParseFloat(_eventData.Data[0]["v"].(string), 64)
 			t := _eventData.Data[0]["T"].(float64)
 
-			event := &WsKLineEvent{
+			event := &WsKlineEvent{
 				Symbol:    _eventData.Symbol,
 				Open:      o,
 				Close:     c,

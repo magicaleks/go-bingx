@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	APIkey    = "kAETP0GtSvvjZjJCzgjyoo6kaOAZQsFurlppV2cyQWUK1ETs55QSkf9CNwtBf0tHAo5jiNZzhWmUo02g9w"
-	SecretKey = "4S3tymbzGKUa1OT9n7sI83El5O0xGHwNMNSOlMtMGuowjVJkY983ZtlZ7Qf04I1lM39l74cD7MDIYk6bLyg"
+	APIkey    = "API_KEY"
+	SecretKey = "SECRET_KEY"
 )
 
 func main() {
@@ -41,7 +41,7 @@ func main() {
 		Type(bingx.LimitOrderType).
 		Side(bingx.BuySideType).
 		Price(15.8).
-		//ClientOrderID("my-order-id").
+		ClientOrderID("my-order-id").
 		Do(context.Background())
 	if err != nil {
 		log.Fatal(err)

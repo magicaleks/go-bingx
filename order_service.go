@@ -286,3 +286,70 @@ func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *G
 
 	return res, nil
 }
+
+type GetOpenOrdersService struct {
+	c             *Client
+	symbol        string
+	orderId       int
+	clientOrderID string
+}
+
+// Define response of get order request
+type GetOpenOrdersResponse struct {
+	Orders []*OpenOrderResponse `json:"orders"`
+}
+
+type OpenOrderResponse struct {
+	Symbol        string           `json:"symbol"`
+	OrderId       int              `json:"orderId"`
+	Side          SideType         `json:"side"`
+	PositionSide  PositionSideType `json:"positionSide"`
+	OrderType     OrderType        `json:"type"`
+	OrigQuantity  string           `json:"origQty"`
+	Price         string           `json:"price"`
+	Quantity      string           `json:"executedQty"`
+	AveragePrice  string           `json:"avgPrice"`
+	CumQuote      string           `json:"cumQuote"`
+	StopPrice     string           `json:"stopPrice"`
+	Profit        string           `json:"profit"`
+	Fee           string           `json:"commission"`
+	Status        OrderStatus      `json:"status"`
+	Time          int64            `json:"time"`
+	UpdateTime    int64            `json:"ppdateTime"`
+	WorkingType   OrderWorkingType `json:"workingType"`
+	ClientOrderID string           `json:"clientOrderID"`
+}
+
+func (s *GetOpenOrdersService) Symbol(symbol string) *GetOpenOrdersService {
+	s.symbol = symbol
+	return s
+}
+
+func (s *GetOpenOrdersService) Do(ctx context.Context, opts ...RequestOption) (res *GetOpenOrdersResponse, err error) {
+	r := &request{method: http.MethodGet, endpoint: "/openApi/swap/v2/trade/openOrders"}
+
+	if s.symbol != "" {
+		r.addParam("symbol", s.symbol)
+	}
+
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := new(struct {
+		Code int                    `json:"code"`
+		Msg  string                 `json:"msg"`
+		Data *GetOpenOrdersResponse `json:"data"`
+	})
+
+	err = json.Unmarshal(data, &resp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res = resp.Data
+
+	return res, nil
+}

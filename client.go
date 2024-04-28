@@ -286,6 +286,10 @@ func (c *Client) NewGetOrderService() *GetOrderService {
 	return &GetOrderService{c: c}
 }
 
+func (c *Client) NewGetOpenOrdersService() *GetOpenOrdersService {
+	return &GetOpenOrdersService{c: c}
+}
+
 func (c *Client) NewGetKlinesService() *GetKlinesService {
 	return &GetKlinesService{c: c}
 }

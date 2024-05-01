@@ -140,11 +140,17 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 		return err
 	}
 
-	r.setParam(recvWindowKey, r.recvWindow)
+	recvWindow := r.recvWindow
+	if recvWindow == 0 {
+		recvWindow = 10000
+	}
+
+	r.setParam(recvWindowKey, recvWindow)
 
 	timestamp := time.Now().UnixNano() / 1e6
 	if r.query != nil {
 		r.setParam(timestampKey, timestamp)
+		c.debug(r.query.Encode())
 		sign := computeHmac256(r.query.Encode(), c.SecretKey)
 		r.setParam(signatureKey, sign)
 	} else {
@@ -197,7 +203,8 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	}
 	req = req.WithContext(ctx)
 	req.Header = r.header
-	c.debug("request: %#v", req)
+	// c.debug("request: %#v", req)
+	c.debug("request url: %#v", req.URL.String())
 	f := c.do
 	if f == nil {
 		f = c.HTTPClient.Do
@@ -216,7 +223,7 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 			err = cerr
 		}
 	}()
-	c.debug("response: %#v", res)
+	// c.debug("response: %#v", res)
 	c.debug("response body: %s", string(data))
 	c.debug("response status code: %d", res.StatusCode)
 

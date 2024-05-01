@@ -288,37 +288,35 @@ func (s *GetOrderService) Do(ctx context.Context, opts ...RequestOption) (res *G
 }
 
 type GetOpenOrdersService struct {
-	c             *Client
-	symbol        string
-	orderId       int
-	clientOrderID string
+	c      *Client
+	symbol string
 }
 
 // Define response of get order request
 type GetOpenOrdersResponse struct {
-	Orders []*OpenOrderResponse `json:"orders"`
+	Orders []*GetOrderResponse `json:"orders"`
 }
 
-type OpenOrderResponse struct {
-	Symbol        string           `json:"symbol"`
-	OrderId       int              `json:"orderId"`
-	Side          SideType         `json:"side"`
-	PositionSide  PositionSideType `json:"positionSide"`
-	OrderType     OrderType        `json:"type"`
-	OrigQuantity  string           `json:"origQty"`
-	Price         string           `json:"price"`
-	Quantity      string           `json:"executedQty"`
-	AveragePrice  string           `json:"avgPrice"`
-	CumQuote      string           `json:"cumQuote"`
-	StopPrice     string           `json:"stopPrice"`
-	Profit        string           `json:"profit"`
-	Fee           string           `json:"commission"`
-	Status        OrderStatus      `json:"status"`
-	Time          int64            `json:"time"`
-	UpdateTime    int64            `json:"ppdateTime"`
-	WorkingType   OrderWorkingType `json:"workingType"`
-	ClientOrderID string           `json:"clientOrderID"`
-}
+// type OpenOrderResponse struct {
+// 	Symbol        string           `json:"symbol"`
+// 	OrderId       int              `json:"orderId"`
+// 	Side          SideType         `json:"side"`
+// 	PositionSide  PositionSideType `json:"positionSide"`
+// 	OrderType     OrderType        `json:"type"`
+// 	OrigQuantity  string           `json:"origQty"`
+// 	Price         string           `json:"price"`
+// 	Quantity      string           `json:"executedQty"`
+// 	AveragePrice  string           `json:"avgPrice"`
+// 	CumQuote      string           `json:"cumQuote"`
+// 	StopPrice     string           `json:"stopPrice"`
+// 	Profit        string           `json:"profit"`
+// 	Fee           string           `json:"commission"`
+// 	Status        OrderStatus      `json:"status"`
+// 	Time          int64            `json:"time"`
+// 	UpdateTime    int64            `json:"ppdateTime"`
+// 	WorkingType   OrderWorkingType `json:"workingType"`
+// 	ClientOrderID string           `json:"clientOrderID"`
+// }
 
 func (s *GetOpenOrdersService) Symbol(symbol string) *GetOpenOrdersService {
 	s.symbol = symbol

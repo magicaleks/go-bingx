@@ -304,3 +304,7 @@ func (c *Client) NewGetKlinesService() *GetKlinesService {
 func (c *Client) NewGetSymbolDataService() *GetSymbolDataService {
 	return &GetSymbolDataService{c: c}
 }
+
+func (c *Client) NewCancelAllOrdersService() *CancelAllOrdersService {
+	return &CancelAllOrdersService{c: c}
+}

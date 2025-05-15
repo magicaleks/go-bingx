@@ -17,10 +17,10 @@ func (s *GetSymbolDataService) Symbol(symbol string) *GetSymbolDataService {
 }
 
 type SymbolData struct {
-	Symbol            string `json:"symbol"`
-	QuantityPrecision int    `json:"quantityPrecision"`
-	PricePrecision    int    `json:"pricePrecision"`
-	TradeMinQuantity  int    `json:"tradeMinQuantity"`
+	Symbol            string  `json:"symbol"`
+	QuantityPrecision int     `json:"quantityPrecision"`
+	PricePrecision    int     `json:"pricePrecision"`
+	TradeMinQuantity  float64 `json:"tradeMinQuantity"`
 }
 
 func (s *GetSymbolDataService) Do(ctx context.Context, opts ...RequestOption) (res *SymbolData, err error) {

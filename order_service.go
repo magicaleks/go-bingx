@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// Only Market and Limit orders supported
+// CreateOrderService Only Market and Limit orders supported
 type CreateOrderService struct {
 	c             *Client
 	symbol        string
@@ -147,7 +147,7 @@ func (s *CancelOrderService) ClientOrderId(clientOrderID string) *CancelOrderSer
 	return s
 }
 
-// Define response of cancel order request
+// CancelOrderResponse Define response of cancel order request
 type CancelOrderResponse struct {
 	Time          int              `json:"time"`
 	Symbol        string           `json:"symbol"`
@@ -192,6 +192,62 @@ func (s *CancelOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 		Code int                             `json:"code"`
 		Msg  string                          `json:"msg"`
 		Data map[string]*CancelOrderResponse `json:"data"`
+	})
+
+	err = json.Unmarshal(data, &resp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	res = resp.Data["order"]
+
+	return res, nil
+}
+
+type CancelAllOrdersService struct {
+	c         *Client
+	symbol    string
+	orderType OrderType
+}
+
+func (s *CancelAllOrdersService) Symbol(symbol string) *CancelAllOrdersService {
+	s.symbol = symbol
+	return s
+}
+
+func (s *CancelAllOrdersService) Type(orderType OrderType) *CancelAllOrdersService {
+	s.orderType = orderType
+
+	return s
+}
+
+// CancelAllOrdersResponse Define response of cancel order request
+type CancelAllOrdersResponse struct {
+	Success []CancelOrderResponse `json:"success"`
+	Failed  []CancelOrderResponse `json:"failed"`
+}
+
+func (s *CancelAllOrdersService) Do(ctx context.Context, opts ...RequestOption) (res *CancelAllOrdersResponse, err error) {
+	r := &request{method: http.MethodDelete, endpoint: "/openApi/swap/v2/trade/allOpenOrders"}
+
+	if s.symbol != "" {
+		r.addParam("symbol", s.symbol)
+	}
+
+	if s.orderType != "" {
+		r.addParam("type", s.orderType)
+	}
+
+	data, err := s.c.callAPI(ctx, r, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := new(struct {
+		Code int                                 `json:"code"`
+		Msg  string                              `json:"msg"`
+		Data map[string]*CancelAllOrdersResponse `json:"data"`
 	})
 
 	err = json.Unmarshal(data, &resp)

@@ -36,13 +36,13 @@ func (s *GetSymbolDataService) Do(ctx context.Context, opts ...RequestOption) (r
 	}
 
 	resp := new(struct {
-		Code int         `json:"code"`
-		Msg  string      `json:"msg"`
-		Data *SymbolData `json:"data"`
+		Code int          `json:"code"`
+		Msg  string       `json:"msg"`
+		Data []SymbolData `json:"data"`
 	})
 
 	err = json.Unmarshal(data, &resp)
-	res = resp.Data
+	res = &resp.Data[0]
 
 	if err != nil {
 		return nil, err

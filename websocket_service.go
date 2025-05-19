@@ -136,7 +136,7 @@ type WsOrder struct {
 	Status        OrderStatus   `json:"X"`
 	Spec          OrderSpecType `json:"x"`
 	Timestamp     int           `json:"T"`
-	OrderId       int           `json:"i"`
+	OrderId       int64         `json:"i"`
 	ClientOrderID string        `json:"c"`
 }
 

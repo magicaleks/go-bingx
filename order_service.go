@@ -60,7 +60,7 @@ func (s *CreateOrderService) Quantity(quantity float64) *CreateOrderService {
 }
 
 type CreateOrderResponse struct {
-	OrderId string `json:"orderId"`
+	OrderId int64 `json:"orderId"`
 }
 
 func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, err error) {
@@ -126,7 +126,7 @@ func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 type CancelOrderService struct {
 	c             *Client
 	symbol        string
-	orderId       int
+	orderId       int64
 	clientOrderID string
 }
 
@@ -135,7 +135,7 @@ func (s *CancelOrderService) Symbol(symbol string) *CancelOrderService {
 	return s
 }
 
-func (s *CancelOrderService) OrderId(orderId int) *CancelOrderService {
+func (s *CancelOrderService) OrderId(orderId int64) *CancelOrderService {
 	s.orderId = orderId
 
 	return s
@@ -161,7 +161,7 @@ type CancelOrderResponse struct {
 	OrigQty       string           `json:"origQty"`
 	AvgPrice      string           `json:"avgPrice"`
 	ExecutedQty   string           `json:"executedQty"`
-	OrderId       int              `json:"orderId"`
+	OrderId       int64            `json:"orderId"`
 	Profit        string           `json:"profit"`
 	Commission    string           `json:"commission"`
 	UpdateTime    int              `json:"updateTime"`
@@ -264,11 +264,11 @@ func (s *CancelAllOrdersService) Do(ctx context.Context, opts ...RequestOption) 
 type GetOrderService struct {
 	c             *Client
 	symbol        string
-	orderId       int
+	orderId       int64
 	clientOrderID string
 }
 
-// Define response of get order request
+// GetOrderResponse Define response of get order request
 type GetOrderResponse struct {
 	Time          int64            `json:"time"`
 	Symbol        string           `json:"symbol"`
@@ -283,10 +283,10 @@ type GetOrderResponse struct {
 	OrigQuantity  string           `json:"origQty"`
 	AveragePrice  string           `json:"avgPrice"`
 	Quantity      string           `json:"executedQty"`
-	OrderId       int              `json:"orderId"`
+	OrderId       int64            `json:"orderId"`
 	Profit        string           `json:"profit"`
 	Fee           string           `json:"commission"`
-	UpdateTime    int64            `json:"ppdateTime"`
+	UpdateTime    int64            `json:"updateTime"`
 	WorkingType   OrderWorkingType `json:"workingType"`
 	ClientOrderID string           `json:"clientOrderID"`
 }
@@ -296,7 +296,7 @@ func (s *GetOrderService) Symbol(symbol string) *GetOrderService {
 	return s
 }
 
-func (s *GetOrderService) OrderId(orderId int) *GetOrderService {
+func (s *GetOrderService) OrderId(orderId int64) *GetOrderService {
 	s.orderId = orderId
 	return s
 }
@@ -348,7 +348,7 @@ type GetOpenOrdersService struct {
 	symbol string
 }
 
-// Define response of get order request
+// GetOpenOrdersResponse Define response of get order request
 type GetOpenOrdersResponse struct {
 	Orders []*GetOrderResponse `json:"orders"`
 }
@@ -369,7 +369,7 @@ type GetOpenOrdersResponse struct {
 // 	Fee           string           `json:"commission"`
 // 	Status        OrderStatus      `json:"status"`
 // 	Time          int64            `json:"time"`
-// 	UpdateTime    int64            `json:"ppdateTime"`
+// 	UpdateTime    int64            `json:"updateTime"`
 // 	WorkingType   OrderWorkingType `json:"workingType"`
 // 	ClientOrderID string           `json:"clientOrderID"`
 // }

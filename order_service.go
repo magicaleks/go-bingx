@@ -60,7 +60,7 @@ func (s *CreateOrderService) Quantity(quantity float64) *CreateOrderService {
 }
 
 type CreateOrderResponse struct {
-	OrderId int `json:"orderId"`
+	OrderId string `json:"orderId"`
 }
 
 func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res *CreateOrderResponse, err error) {
